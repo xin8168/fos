@@ -1,0 +1,20 @@
+[package]
+name = "fos-common"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "FOS 共享类型库 - 核心数据结构和枚举"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+[lints]
+workspace = true

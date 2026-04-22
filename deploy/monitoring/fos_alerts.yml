@@ -1,0 +1,104 @@
+# FOS 告警规则配置
+
+groups:
+  - name: fos_alerts
+    rules:
+      # 服务可用性告警
+      - alert: FOSGatewayDown
+        expr: up{job="fos-gateway"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FOS Gateway 实例宕机"
+          description: "FOS Gateway 实例 {{ $labels.instance }} 已宕机超过 1 分钟"
+
+      # 高错误率告警
+      - alert: FOSHighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS 高错误率"
+          description: "FOS 服务错误率超过 5%，当前值: {{ $value | humanizePercentage }}"
+
+      # 高延迟告警
+      - alert: FOSHighLatency
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS 高延迟"
+          description: "FOS 服务 P99 延迟超过 1 秒，当前值: {{ $value }}s"
+
+      # 内存使用率告警
+      - alert: FOSHighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS 高内存使用率"
+          description: "FOS 容器内存使用率超过 85%，当前值: {{ $value | humanizePercentage }}"
+
+      # CPU 使用率告警
+      - alert: FOSHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS 高 CPU 使用率"
+          description: "FOS 容器 CPU 使用率超过 80%，当前值: {{ $value }}"
+
+      # 事务失败率告警
+      - alert: FOSTransactionFailureRate
+        expr: rate(fos_transaction_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FOS 事务失败率过高"
+          description: "FOS 事务失败率超过 0.1/s，当前值: {{ $value }}/s"
+
+      # 锁等待超时告警
+      - alert: FOSLockWaitTimeout
+        expr: rate(fos_lock_wait_timeouts_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS 锁等待超时"
+          description: "FOS 锁等待超时事件发生，当前速率: {{ $value }}/s"
+
+      # 缓存命中率过低告警
+      - alert: FOSLowCacheHitRate
+        expr: rate(fos_cache_hits_total[5m]) / (rate(fos_cache_hits_total[5m]) + rate(fos_cache_misses_total[5m])) < 0.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS 缓存命中率过低"
+          description: "FOS 缓存命中率低于 50%，当前值: {{ $value | humanizePercentage }}"
+
+      # Pod 重启告警
+      - alert: FOSPodRestarting
+        expr: increase(kube_pod_container_status_restarts_total[1h]) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FOS Pod 频繁重启"
+          description: "FOS Pod {{ $labels.pod }} 在过去 1 小时内重启超过 3 次"
+
+      # 磁盘空间不足告警
+      - alert: FOSLowDiskSpace
+        expr: kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FOS 磁盘空间不足"
+          description: "FOS 存储卷可用空间低于 10%，当前值: {{ $value | humanizePercentage }}"

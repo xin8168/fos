@@ -1,0 +1,53 @@
+# ============================================================
+# FOS神经元控制器 - GitHub 发布脚本
+# ============================================================
+
+## 步骤 1: 在终端中执行以下命令
+
+# 进入项目目录
+cd D:\python\m\fossjy
+
+# 1. 初始化 Git（如果没有 .git 目录）
+git init
+
+# 2. 配置用户名（你的GitHub用户名）
+git config user.name "xin8168"
+
+# 3. 配置邮箱
+git config user.email "xin8168@github.com"
+
+# 4. 添加所有文件
+git add .
+
+# 5. 创建提交
+git commit -m "v0.1.0: FOS神经元控制器初始发布 - 27模块、650+测试、神经元控制架构"
+
+# 6. 添加远程仓库
+git remote add origin https://github.com/xin8168/fos.git
+
+# 7. 推送到GitHub
+git push -u origin main
+
+---
+
+## 步骤 2: 验证
+
+打开浏览器访问：
+https://github.com/xin8168/fos
+
+应该能看到所有文件！
+
+---
+
+## 步骤 3: 可选 - 创建Release
+
+1. 打开 https://github.com/xin8168/fos/releases
+2. 点击 "Create a new release"
+3. Tag: v0.1.0
+4. Title: FOS神经元控制器 v0.1.0
+5. 将 CHANGELOG.md 内容复制到描述
+6. 点击 "Publish release"
+
+---
+
+## 完成！

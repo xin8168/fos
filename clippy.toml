@@ -1,0 +1,19 @@
+# FOS Clippy 配置
+
+# 最低支持的Rust版本
+msrv = "1.75"
+
+# 认知复杂度阈值
+cognitive-complexity-threshold = 25
+
+# 文档检查
+missing-docs-in-crate-items = true
+
+# 类型复杂度阈值
+type-complexity-threshold = 250
+
+# 单个函数最大行数
+too-many-arguments-threshold = 10
+
+# 大量参数阈值
+too-many-lines-threshold = 100

@@ -1,0 +1,25 @@
+[package]
+name = "fos-skills"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+fos-common.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+uuid = { version = "1.6", features = ["serde", "v4"] }
+chrono.workspace = true
+
+[dev-dependencies]
+mockall.workspace = true
+
+[[bin]]
+name = "fos-skills"
+path = "src/main.rs"

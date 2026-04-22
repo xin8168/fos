@@ -1,0 +1,33 @@
+[package]
+name = "fos-security"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["FOS Team"]
+description = "FOS 安全测试和渗透测试模块"
+repository = "https://github.com/fos-platform/fos"
+
+[workspace]
+
+[dependencies]
+# 内部模块
+fos-cache = { path = "../cache" }
+fos-lock = { path = "../lock" }
+fos-idempotency = { path = "../idempotency" }
+fos-validator = { path = "../validator" }
+
+# 异步运行时
+tokio = { version = "1.35", features = ["full"] }
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# 错误处理
+thiserror = "1.0"
+
+# 时间
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tokio-test = "0.4"

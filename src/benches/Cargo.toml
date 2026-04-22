@@ -1,0 +1,41 @@
+[package]
+name = "fos-benches"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["FOS Team"]
+description = "FOS 性能基准测试"
+repository = "https://github.com/fos-platform/fos"
+publish = false
+
+# 空 workspace 表使其成为独立的 workspace 成员
+[workspace]
+
+[lib]
+# 空的库定义以满足 Cargo 要求
+name = "fos_benches"
+path = "lib.rs"
+
+[dependencies]
+# 内部模块
+fos-cache = { path = "../cache" }
+fos-lock = { path = "../lock" }
+fos-rollback = { path = "../rollback" }
+fos-schedule = { path = "../schedule" }
+
+# 基准测试框架
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# 异步运行时
+tokio = { version = "1.35", features = ["full"] }
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# 时间
+chrono = { version = "0.4", features = ["serde"] }
+
+[[bench]]
+name = "system_benchmark"
+harness = false

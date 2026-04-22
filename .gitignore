@@ -1,0 +1,85 @@
+# FOS .gitignore
+
+# Rust / Cargo
+/target/
+**/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+*.rlib
+*.a
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+/fos
+
+# Logs
+logs/
+*.log
+logs/*.log.*
+
+# Environment
+.env
+.env.*
+!.env.example
+*.local
+
+# Test
+coverage/
+.nyc_output/
+*.profraw
+*.dyn-dump
+
+# Documentation builds
+docs/_build/
+site/
+.jekyll-cache/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# Database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/
+
+# Kubernetes
+*.kubeconfig
+kubeconfig
+
+# Misc
+*.sig
+*.sum
+*.asc
+secret/
+credentials/
+keys/

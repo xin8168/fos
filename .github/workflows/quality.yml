@@ -1,0 +1,107 @@
+# FOS 代码质量检查工作流
+# 代码质量门禁：复杂度、重复度、可维护性
+
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # 代码复杂度分析
+  complexity:
+    name: Code Complexity Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run clippy with complexity checks
+        run: |
+          cargo clippy --workspace --all-targets -- \
+            -D warnings \
+            -W clippy::cognitive_complexity \
+            -W clippy::too_many_arguments \
+            -W clippy::too_many_lines \
+            -W clippy::type_complexity
+
+  # 依赖检查
+  dependencies:
+    name: Dependency Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-udeps
+        uses: baptiste0928/cargo-install@v2
+        with:
+          crate: cargo-udeps
+
+      - name: Check for unused dependencies
+        run: cargo udeps --workspace --all-targets
+
+  # 许可证检查
+  licenses:
+    name: License Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-deny
+        uses: baptiste0928/cargo-install@v2
+        with:
+          crate: cargo-deny
+
+      - name: Check licenses
+        run: cargo deny check licenses
+
+      - name: Check bans
+        run: cargo deny check bans
+
+      - name: Check advisories
+        run: cargo deny check advisories
+
+  # 代码统计
+  stats:
+    name: Code Statistics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Count lines of code
+        uses: fossas/fossa-action@main
+
+      - name: Generate code stats
+        run: |
+          echo "## Code Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Rust Files | $(find src -name '*.rs' | wc -l) |" >> $GITHUB_STEP_SUMMARY
+          echo "| TOML Files | $(find . -name 'Cargo.toml' | wc -l) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Modules | $(ls -d src/*/ 2>/dev/null | wc -l) |" >> $GITHUB_STEP_SUMMARY

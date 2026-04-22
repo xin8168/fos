@@ -1,0 +1,140 @@
+# FOS Grafana Dashboard 配置
+# 导入此 JSON 到 Grafana 以创建 FOS 监控面板
+
+{
+  "dashboard": {
+    "title": "FOS 系统监控面板",
+    "tags": ["fos", "rust", "microservices"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "服务可用性",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"fos-.*\"}",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 8, "x": 0, "y": 0}
+      },
+      {
+        "title": "HTTP 请求速率",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{job}} - {{method}} {{path}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4}
+      },
+      {
+        "title": "请求延迟 (P99)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+      },
+      {
+        "title": "错误率",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12}
+      },
+      {
+        "title": "内存使用",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{namespace=\"fos-system\"}",
+            "legendFormat": "{{pod}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12}
+      },
+      {
+        "title": "CPU 使用",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{namespace=\"fos-system\"}[5m])",
+            "legendFormat": "{{pod}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20}
+      },
+      {
+        "title": "事务统计",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(fos_transaction_total[5m])",
+            "legendFormat": "总事务"
+          },
+          {
+            "expr": "rate(fos_transaction_failures_total[5m])",
+            "legendFormat": "失败事务"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20}
+      },
+      {
+        "title": "缓存命中率",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "rate(fos_cache_hits_total[5m]) / (rate(fos_cache_hits_total[5m]) + rate(fos_cache_misses_total[5m]))",
+            "legendFormat": "命中率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.5},
+                {"color": "green", "value": 0.8}
+              ]
+            },
+            "max": 1,
+            "min": 0
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 28}
+      },
+      {
+        "title": "Pod 副本数",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "kube_deployment_status_replicas_available{namespace=\"fos-system\"}",
+            "legendFormat": "{{deployment}}"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 28}
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "refresh": "30s"
+  }
+}

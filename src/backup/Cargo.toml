@@ -1,0 +1,38 @@
+[package]
+name = "fos-backup"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["FOS Team"]
+description = "FOS 数据备份模块"
+repository = "https://github.com/fos-platform/fos"
+
+[lib]
+name = "fos_backup"
+path = "src/lib.rs"
+
+[dependencies]
+fos-common = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+uuid = { version = "1.6", features = ["v4", "serde"] }
+async-trait = "0.1"
+anyhow = "1.0"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+gethostname = "0.5"
+sha2 = "0.10"
+flate2 = "1.0"
+
+[dev-dependencies]
+tempfile = "3.14"
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "fos-backup"
+path = "src/main.rs"

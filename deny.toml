@@ -1,0 +1,79 @@
+# FOS 依赖安全配置
+
+# 许可证白名单
+[licenses]
+# 允许的许可证
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-DFS-2016",
+]
+
+# 拒绝的许可证
+deny = [
+    "GPL-2.0",
+    "GPL-3.0",
+    "LGPL-2.1",
+    "LGPL-3.0",
+    "AGPL-3.0",
+    "SSPL-1.0",
+]
+
+# 置信度阈值
+confidence-threshold = 0.8
+
+# 未许可的处理
+unlicensed = "deny"
+
+# 版权检查
+private = { ignore = false }
+
+# 禁止的依赖
+[bans]
+# 多版本检测
+multiple-versions = "warn"
+
+# 跳过的依赖
+wildcards = "deny"
+
+# 重复依赖
+highlight = "all"
+
+# 工作空间依赖
+workspace-default = "deny"
+
+# 安全公告
+[advisories]
+# 未修复的漏洞
+unmaintained = "warn"
+
+# 已知漏洞
+vulnerability = "deny"
+
+# 未维护的依赖
+yanked = "warn"
+
+# 数据库URL
+db-path = "~/.cargo/advisory-db"
+
+# 数据库获取频率
+fetch-secure-if-absent = true
+
+# 源配置
+[sources]
+# 未知源
+unknown-registry = "deny"
+
+# 未知Git源
+unknown-git = "deny"
+
+# 允许的源
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+
+# 跳过的包
+[ignore]
+# 可以在这里添加要跳过的特定包

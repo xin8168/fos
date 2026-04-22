@@ -1,0 +1,31 @@
+[package]
+name = "fos-config"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+fos-common.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+toml = "0.8"
+
+[dev-dependencies]
+mockall.workspace = true
+
+[features]
+default = []
+async = []
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "fos-config"
+path = "src/main.rs"

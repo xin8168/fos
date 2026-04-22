@@ -1,0 +1,35 @@
+[package]
+name = "fos-schedule"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["FOS Team"]
+description = "FOS 定时调度模块"
+repository = "https://github.com/fos-platform/fos"
+
+[lib]
+name = "fos_schedule"
+path = "src/lib.rs"
+
+[dependencies]
+fos-common = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+regex = "1.10"
+async-trait = "0.1"
+anyhow = "1.0"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "fos-schedule"
+path = "src/main.rs"

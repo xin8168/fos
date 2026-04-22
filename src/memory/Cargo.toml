@@ -1,0 +1,29 @@
+[package]
+name = "fos-memory"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+fos-common.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+config.workspace = true
+chrono.workspace = true
+
+# 数据库特定
+deadpool-postgres = "0.12"
+uuid = { version = "1.6", features = ["serde", "v4"] }
+
+[dev-dependencies]
+mockall.workspace = true
+
+[[bin]]
+name = "fos-memory"
+path = "src/main.rs"

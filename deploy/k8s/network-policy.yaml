@@ -1,0 +1,267 @@
+# FOS NetworkPolicy 配置
+# 控制 Pod 间的网络流量，实现零信任安全
+
+---
+# 默认拒绝所有入站流量
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-default-deny-ingress
+  namespace: fos-system
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+# 默认拒绝所有出站流量（可选，根据需求调整）
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-default-deny-egress
+  namespace: fos-system
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+
+---
+# Gateway 入站允许规则
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-gateway-allow-ingress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    # 允许 Ingress 控制器访问
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+    # 允许 Prometheus 抓取指标
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
+
+---
+# Gateway 出站允许规则
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-gateway-allow-egress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: gateway
+  policyTypes:
+    - Egress
+  egress:
+    # 允许访问 Validator
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: validator
+      ports:
+        - protocol: TCP
+          port: 8081
+    # 允许访问 DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+    # 允许访问外部 API（如需要）
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+# Validator 入站允许规则
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-validator-allow-ingress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: validator
+  policyTypes:
+    - Ingress
+  ingress:
+    # 允许 Gateway 访问
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: gateway
+      ports:
+        - protocol: TCP
+          port: 8081
+
+---
+# Validator 出站允许规则
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-validator-allow-egress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: validator
+  policyTypes:
+    - Egress
+  egress:
+    # 允许访问 Bus
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: bus
+      ports:
+        - protocol: TCP
+          port: 8082
+    # 允许访问数据库（通过 Service）
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: database
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Bus 入站允许规则
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-bus-allow-ingress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: bus
+  policyTypes:
+    - Ingress
+  ingress:
+    # 允许 Validator 访问
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: validator
+      ports:
+        - protocol: TCP
+          port: 8082
+
+---
+# Bus 出站允许规则
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-bus-allow-egress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: bus
+  policyTypes:
+    - Egress
+  egress:
+    # 允许访问外部服务（执行命令）
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 22
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+
+---
+# 数据库访问控制
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-database-allow-ingress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: database
+  policyTypes:
+    - Ingress
+  ingress:
+    # 只允许核心模块访问
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: validator
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: bus
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: audit
+
+---
+# 缓存访问控制
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fos-cache-allow-ingress
+  namespace: fos-system
+spec:
+  podSelector:
+    matchLabels:
+      app: fos
+      component: cache
+  policyTypes:
+    - Ingress
+  ingress:
+    # 只允许需要缓存的模块访问
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: gateway
+        - podSelector:
+            matchLabels:
+              app: fos
+              component: validator

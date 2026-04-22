@@ -1,0 +1,45 @@
+# FOS 测试配置
+
+[testing]
+# 测试超时时间（秒）
+timeout_secs = 60
+
+# 测试重试次数
+max_retries = 3
+
+# 并行测试数
+parallel_jobs = 4
+
+[coverage]
+# 目标覆盖率
+target_percent = 90
+
+# 最小覆盖率
+minimum_percent = 80
+
+# 覆盖率报告格式
+output_format = "xml"
+
+[fixtures]
+# 夹具数据目录
+data_dir = "tests/fixtures"
+
+# 夹具缓存
+enable_cache = true
+
+[logging]
+# 测试日志级别
+level = "debug"
+
+# 日志输出目录
+output_dir = "target/test-logs"
+
+[reports]
+# 报告输出目录
+output_dir = "target/test-reports"
+
+# 报告格式：junit, html, json
+formats = ["junit", "html"]
+
+# 失败时生成报告
+report_on_failure = true

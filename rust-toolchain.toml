@@ -1,0 +1,17 @@
+[toolchain]
+# 使用的Rust版本
+channel = "stable"
+
+# 目标平台
+targets = ["x86_64-pc-windows-msvc"]
+
+# 组件
+components = [
+"rustfmt",
+"clippy",
+"rust-analyzer",
+"rust-src",
+]
+
+# 配置文件
+profile = "default"

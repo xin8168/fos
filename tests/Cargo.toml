@@ -1,0 +1,132 @@
+[package]
+name = "fos-integration-tests"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["FOS Team"]
+description = "FOS 集成测试"
+repository = "https://github.com/fos-platform/fos"
+
+[dependencies]
+# 内部模块
+fos-bootstrap = { path = "../src/bootstrap" }
+fos-shutdown = { path = "../src/shutdown" }
+fos-health = { path = "../src/health" }
+fos-config = { path = "../src/config" }
+fos-transaction = { path = "../src/transaction" }
+fos-lock = { path = "../src/lock" }
+fos-idempotency = { path = "../src/idempotency" }
+fos-gateway = { path = "../src/gateway" }
+fos-validator = { path = "../src/validator" }
+fos-bus = { path = "../src/bus" }
+fos-memory = { path = "../src/memory" }
+fos-audit = { path = "../src/audit" }
+fos-rollback = { path = "../src/rollback" }
+fos-permission = { path = "../src/permission" }
+fos-eventlog = { path = "../src/eventlog" }
+fos-notifier = { path = "../src/notifier" }
+fos-sandbox = { path = "../src/sandbox" }
+fos-mcp = { path = "../src/mcp" }
+fos-migration = { path = "../src/migration" }
+fos-backup = { path = "../src/backup" }
+fos-plugin = { path = "../src/plugin" }
+fos-schedule = { path = "../src/schedule" }
+fos-cache = { path = "../src/cache" }
+
+# 外部依赖
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+anyhow = "1.0"
+uuid = { version = "1.6", features = ["v4"] }
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.14"
+
+[[test]]
+name = "structure_test"
+path = "integration/structure_test.rs"
+
+[[test]]
+name = "infrastructure_test"
+path = "integration/infrastructure_test.rs"
+
+[[test]]
+name = "consistency_test"
+path = "integration/consistency_test.rs"
+
+[[test]]
+name = "gateway_test"
+path = "integration/gateway_test.rs"
+
+[[test]]
+name = "validator_test"
+path = "integration/validator_test.rs"
+
+[[test]]
+name = "bus_test"
+path = "integration/bus_test.rs"
+
+[[test]]
+name = "memory_test"
+path = "integration/memory_test.rs"
+
+[[test]]
+name = "audit_test"
+path = "integration/audit_test.rs"
+
+[[test]]
+name = "rollback_test"
+path = "integration/rollback_test.rs"
+
+[[test]]
+name = "permission_test"
+path = "integration/permission_test.rs"
+
+[[test]]
+name = "eventlog_test"
+path = "integration/eventlog_test.rs"
+
+[[test]]
+name = "notifier_test"
+path = "integration/notifier_test.rs"
+
+[[test]]
+name = "core_integration_test"
+path = "integration/core_integration_test.rs"
+
+[[test]]
+name = "sandbox_test"
+path = "integration/sandbox_test.rs"
+
+[[test]]
+name = "mcp_test"
+path = "integration/mcp_test.rs"
+
+[[test]]
+name = "migration_test"
+path = "integration/migration_test.rs"
+
+[[test]]
+name = "backup_test"
+path = "integration/backup_test.rs"
+
+[[test]]
+name = "plugin_test"
+path = "integration/plugin_test.rs"
+
+[[test]]
+name = "cache_test"
+path = "integration/cache_test.rs"
+
+[[test]]
+name = "system_integration_test"
+path = "integration/system_integration_test.rs"
+
+[[test]]
+name = "schedule_test"
+path = "integration/schedule_test.rs"

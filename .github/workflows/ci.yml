@@ -1,0 +1,242 @@
+# FOS CI/CD GitHub Actions
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Code Quality Checks
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          components: rustfmt
+      
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy Lints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          components: clippy
+      
+      - name: Run Clippy
+        run: cargo clippy --workspace -- -D warnings
+
+  # Build and Test
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          components: llvm-tools-preview
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/target
+          key: ${{ runner.os }}-target-${{ hashFiles('src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-target-
+      
+      - name: Run tests
+        run: cargo test --workspace --no-fail-fast
+      
+      - name: Run doc tests
+        run: cargo test --workspace --doc
+
+  # Build Release
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          profile: minimal
+      
+      - name: Build release
+        run: cargo build --release --workspace
+      
+      - name: Build binaries
+        run: |
+          for bin in fos-gateway fos-validator fos-bus; do
+            test -f "src/target/release/$bin" && echo "$bin exists" || echo "$bin missing"
+          done
+
+  # Security Audit
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run security audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Coverage
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          components: llvm-tools-preview
+      
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      
+      - name: Generate coverage
+        run: cargo llvm-cov --workspace --lcov --output-path lcov.info
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./lcov.info
+          fail_ci_if_error: true
+
+  # Documentation
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          components: rust-docsrc
+      
+      - name: Build documentation
+        run: cargo doc --workspace --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+  # Binary Size Tracking
+  binaries:
+    name: Binary Sizes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          profile: minimal
+      
+      - name: Build release
+        run: cargo build --release --workspace -p fos-gateway -p fos-validator -p fos-bus
+      
+      - name: Check binary sizes
+        run: |
+          echo "Binary sizes:"
+          ls -lh src/target/release/fos-gateway || echo "gateway not found"
+          ls -lh src/target/release/fos-validator || echo "validator not found"
+          ls -lh src/target/release/fos-bus || echo "bus not found"
+
+  # Docker Build (optional)
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: fos-platform/fos:latest
+          cache-from: type=registry,ref=fos-platform/fos:buildcache
+          cache-to: type=registry,ref=fos-platform/fos:buildcache,mode=max
+
+  # Minimum Supported Rust Version
+  msvc:
+    name: MSRV Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust 1.76
+        uses: dtolnay/rust-action@1.76.0
+      
+      - name: Check build
+        run: cargo build --workspace
+
+  # Windows Build
+  windows:
+    name: Windows Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+      
+      - name: Build
+        run: cargo build --workspace
+      
+      - name: Test
+        run: cargo test --workspace
+
+  # macOS Build
+  macos:
+    name: macOS Build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+      
+      - name: Build
+        run: cargo build --workspace
+      
+      - name: Test
+        run: cargo test --workspace
